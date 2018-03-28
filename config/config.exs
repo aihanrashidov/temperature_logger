@@ -7,7 +7,13 @@ use Mix.Config
 
 # General application configuration
 config :temptest,
-  ecto_repos: [Temptest.Repo]
+  ecto_repos: [Temptest.Repo],
+  host: {:host, "31.13.251.15"},
+  port: {:port, 8883},
+  username: {:username, "sensornet"},
+  password: {:password, "aemos"},
+  topic: "TempVarna",
+  qos: 2
 
 # Configures the endpoint
 config :temptest, TemptestWeb.Endpoint,

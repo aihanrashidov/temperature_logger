@@ -4,18 +4,29 @@ defmodule TemperatureLogger do
   require Logger
 
   def start_link do
-    GenMQTT.start_link(__MODULE__, nil, [{:name, __MODULE__}, {:host, "31.13.251.15"}, {:port, 8883}, {:username, "sensornet"}, {:password, "aemos"}])
+    options =
+      [
+        Application.get_env(:temptest, :host),
+        Application.get_env(:temptest, :port),
+        Application.get_env(:temptest, :username),
+        Application.get_env(:temptest, :password)
+      ]
+    GenMQTT.start_link(__MODULE__, nil, options)
   end
 
   def on_connect(state) do
-    :ok = GenMQTT.subscribe(self(), "TempVarna", 2)
+    topic = Application.get_env(:temptest, :topic)
+    qos = Application.get_env(:temptest, :qos)
+
+    :ok = GenMQTT.subscribe(self(), topic, qos)
+
     Logger.info("MQTT connection established!")
     {:ok, state}
   end
 
-  def on_publish(["TempVarna"], message, state) do
+  def on_publish([_], message, state) do
     Logger.debug("MQTT server published!")
-    Logger.info("The temperature is #{message} degrees.")
+    Logger.info("#{message}")
     broadcast(message)
     {:ok, state}
   end
